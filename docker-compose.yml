@@ -1,0 +1,28 @@
+version: "3.6"
+
+services:
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: docker-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./logs:/var/log/nginx
+      - ./nginx-config/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx-config/conf.d:/etc/nginx/conf.d
+      - ./nginx-config/snippets:/etc/nginx/snippets
+      # - /etc/nginx/ssl:/ssl
+      - ./nginx-config/ssl/dhparam.pem:/ssl/dhparam.pem
+      # - /var/www/websites:/wwwroot
+    extra_hosts:
+      - "localhost:127.0.0.1"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy off http://localhost/get-health || exit 1"]
+      interval: 5s
+      retries: 12
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "100m"
